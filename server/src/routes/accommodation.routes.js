@@ -28,6 +28,8 @@ const {
   getLandlordHousingGroups,
 } = require("../controllers/accommodation.controller");
 
+
+
 const {
   createTicket,
   getMyTickets,
