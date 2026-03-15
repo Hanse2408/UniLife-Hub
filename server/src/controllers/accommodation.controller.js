@@ -383,7 +383,6 @@ const rejectListing = async (req, res) => {
       entityId: listing._id,
     });
 
-    
     return res.status(200).json({
       success: true,
       message: "Listing rejected successfully",
