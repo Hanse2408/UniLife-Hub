@@ -373,6 +373,7 @@ const rejectListing = async (req, res) => {
 
     await listing.save();
 
+    
     await createNotification({
       userId: listing.ownerId,
       type: "LISTING_REJECTED",
