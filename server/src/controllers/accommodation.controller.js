@@ -431,6 +431,7 @@ const createBookingRequest = async (req, res) => {
       });
     }
 
+    
     const parsedMoveInDate = new Date(moveInDate);
     const now = new Date();
 
