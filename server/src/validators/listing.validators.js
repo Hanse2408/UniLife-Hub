@@ -8,6 +8,7 @@ const createListingValidator = [
     .isLength({ min: 5, max: 120 })
     .withMessage("Title must be between 5 and 120 characters"),
 
+    
   body("description")
     .trim()
     .notEmpty()
