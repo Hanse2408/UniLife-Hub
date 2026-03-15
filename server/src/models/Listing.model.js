@@ -143,6 +143,7 @@ const listingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
 listingSchema.index({
   "location.city": 1,
   "location.area": 1,
