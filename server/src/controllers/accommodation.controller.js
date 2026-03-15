@@ -52,6 +52,8 @@ const createListing = async (req, res) => {
   }
 };
 
+
+
 const getAllListings = async (req, res) => {
   try {
     const {

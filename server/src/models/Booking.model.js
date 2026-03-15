@@ -37,6 +37,7 @@ const bookingSchema = new mongoose.Schema(
       maxlength: 500,
     },
 
+    
     status: {
       type: String,
       enum: [
