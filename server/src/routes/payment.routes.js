@@ -14,6 +14,7 @@ const { authRequired } = require("../middleware/auth.middleware");
 const authorizeRoles = require("../middleware/role.middleware");
 const validate = require("../middleware/validate.middleware");
 
+
 const {
   payBookingValidator,
   payRentValidator,

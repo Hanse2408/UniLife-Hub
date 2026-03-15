@@ -10,6 +10,7 @@ const {
     adminGetAllReviews,
 } = require("../controllers/review.controller");
 
+
 const router = express.Router();
 
 // Student creates a review

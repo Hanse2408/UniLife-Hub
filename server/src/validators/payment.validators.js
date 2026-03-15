@@ -7,6 +7,7 @@ const payBookingValidator = [
 const payRentValidator = [
   param("housingGroupId").isMongoId().withMessage("Invalid housing group id"),
 
+  
   body("monthKey")
     .optional()
     .matches(/^\d{4}-\d{2}$/)

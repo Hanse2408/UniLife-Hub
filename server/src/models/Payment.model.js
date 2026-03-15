@@ -40,6 +40,7 @@ const paymentSchema = new mongoose.Schema(
       min: 0,
     },
 
+    
     currency: {
       type: String,
       default: "LKR",
