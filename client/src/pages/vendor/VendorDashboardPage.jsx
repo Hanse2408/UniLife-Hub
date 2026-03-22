@@ -1,3 +1,10 @@
+/**
+ * @component VendorDashboardPage
+ * @description Main workspace for vendors to manage food items, track live orders, 
+ * and monitor financial performance within the UniLife Hub system.
+ * @author Amarasinghe V G N H (IT23860728)
+ */
+
 import {
   ClipboardList,
   Plus,
@@ -22,11 +29,15 @@ const initialStats = {
   totalSales: 0,
 };
 
+/**
+ * Standardized currency display for Uni Life Hub
+ */
 function formatCurrency(amount) {
-  return `LKR ${Number(amount || 0).toLocaleString("en-LK", {
+  const formattedValue = Number(amount || 0).toLocaleString("en-LK", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })}`;
+  });
+  return `LKR ${formattedValue}`;
 }
 
 function getBacklogMessage(pendingOrders) {
@@ -35,10 +46,14 @@ function getBacklogMessage(pendingOrders) {
   return "Orders are coming in. Keep status updates flowing.";
 }
 
+/**
+ * Enhanced sales insight logic for better business monitoring
+ */
 function getSalesMessage(totalOrders, totalSales) {
-  if (totalOrders === 0) return "Sales will appear here once orders start coming in.";
-  if (totalSales < 5000) return "Early sales are building. Keep it up!";
-  return "Sales are steady. Focus on delivery pace and menu quality.";
+  if (totalOrders === 0) return "Start your journey! Sales will appear here once orders roll in.";
+  if (totalSales < 5000) return "Growing steady! Early sales are building momentum.";
+  if (totalSales >= 5000 && totalSales < 20000) return "Great performance! Sales are steady and climbing.";
+  return "Excellent reach! Focus on maintaining menu quality and delivery speed.";
 }
 
 export default function VendorDashboardPage() {
@@ -57,7 +72,10 @@ export default function VendorDashboardPage() {
         setStats({ ...initialStats, ...(statsRes.data.stats || {}) });
         setFoodItems(itemsRes.data.foodItems || []);
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to load vendor summary");
+        // Improved error handling and toast feedback
+        const errorMsg = error?.response?.data?.message || "Oops! We couldn't load your dashboard summary.";
+        toast.error(errorMsg);
+        console.error("[Vendor Dashboard Fetch Error]:", error);
       } finally {
         setLoading(false);
       }
@@ -99,14 +117,14 @@ export default function VendorDashboardPage() {
             <StatCard
               title="Open queue"
               value={stats.pendingOrders}
-              subtitle="Orders awaiting preparation or delivery."
+              subtitle={getBacklogMessage(stats.pendingOrders)}
               tone="blue"
               icon={Store}
             />
             <StatCard
               title="Total sales"
               value={formatCurrency(stats.totalSales)}
-              subtitle={`${stats.deliveredOrders} delivered · ${stats.totalOrders} total orders`}
+              subtitle={getSalesMessage(stats.totalOrders, stats.totalSales)}
               tone="emerald"
               icon={Wallet}
             />
@@ -149,16 +167,17 @@ export default function VendorDashboardPage() {
             </div>
           </div>
 
-          {foodItems.length > 0 && (
-            <div className="card p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Your catalog</div>
-                  <h3 className="mt-2 text-2xl font-bold text-slate-900">Food Items</h3>
-                </div>
-                <Link to="/vendor/items" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">View all →</Link>
+          {/* Catalog Section with Empty State Handling */}
+          <div className="card p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Your catalog</div>
+                <h3 className="mt-2 text-2xl font-bold text-slate-900">Food Items</h3>
               </div>
+              {foodItems.length > 0 && <Link to="/vendor/items" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700">View all →</Link>}
+            </div>
 
+            {foodItems.length > 0 ? (
               <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {foodItems.slice(0, 8).map((item) => (
                   <div key={item._id} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4">
@@ -175,8 +194,15 @@ export default function VendorDashboardPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="mt-8 flex flex-col items-center justify-center py-10 text-center">
+                <div className="mb-3 rounded-full bg-slate-100 p-4 text-slate-400">
+                  <UtensilsCrossed size={32} />
+                </div>
+                <p className="text-slate-500">Your catalog is currently empty. Start by adding your first food item!</p>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
