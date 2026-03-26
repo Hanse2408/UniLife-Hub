@@ -199,7 +199,7 @@ export default function VendorDashboardPage() {
                 <div className="mb-3 rounded-full bg-slate-100 p-4 text-slate-400">
                   <UtensilsCrossed size={32} />
                 </div>
-                <p className="text-slate-500">Your catalog is currently empty. Start by adding your first food item!</p>
+                <p className="text-slate-500 font-medium">Your menu is currently empty. Start growing your business by adding items!</p>
               </div>
             )}
           </div>
