@@ -5,6 +5,12 @@
   text-align: center;
 }
 
+const themeColors = {
+  primary: "#000080", // Navy Blue
+  secondary: "#FF8C00", // Dark Orange
+  accent: "#F0F4F8"
+};
+
 .logo {
   height: 6em;
   padding: 1.5em;
