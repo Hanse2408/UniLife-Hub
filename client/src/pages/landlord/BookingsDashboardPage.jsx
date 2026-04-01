@@ -52,6 +52,7 @@ import LoadingState from "../../components/common/LoadingState";
 /*  Helpers                                                        */
 /* ─────────────────────────────────────────────────────────────── */
 
+
 function fmt(amount) {
   return `LKR ${Number(amount || 0).toLocaleString()}`;
 }

@@ -26,6 +26,7 @@ const ALLERGEN_OPTIONS = [
 ];
 
 
+
 function formatDate(value) {
     if (!value) return "Not available";
     return new Date(value).toLocaleDateString("en-LK", {

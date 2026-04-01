@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { createListingApi } from "../../api/client";
 import ListingForm from "../../components/accommodation/ListingForm";
 
+
 export default function CreateListingPage() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);

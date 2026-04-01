@@ -51,6 +51,7 @@ function formatCurrencyShort(amount) {
     return formatCurrency(num);
 }
 
+
 const quickActions = [
     {
         to: "/landlord/listings",

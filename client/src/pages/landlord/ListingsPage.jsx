@@ -35,6 +35,7 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString("en-GB");
 }
 
+
 const listingStatusConfig = {
     ACTIVE: { dot: "bg-emerald-500", label: "Active", bg: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60" },
     UNAVAILABLE: { dot: "bg-slate-400", label: "Unavailable", bg: "bg-slate-100 text-slate-600 ring-1 ring-slate-200/60" },
