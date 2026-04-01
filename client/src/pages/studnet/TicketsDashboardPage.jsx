@@ -25,6 +25,7 @@ import StatusBadge from "../../components/StatusBadge";
 import dashboardBanner from "../../assets/illustrations/dashboard-banner.png";
 import emptyTickets from "../../assets/illustrations/empty-tickets.png";
 
+
 const initialForm = {
   category: "PLUMBING",
   priority: "MEDIUM",

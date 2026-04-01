@@ -36,6 +36,7 @@ function formatCurrency(amount) {
     })}`;
 }
 
+
 function countPlannedMeals(plan) {
     if (!plan?.mealSlots?.length) return 0;
     return plan.mealSlots.reduce((sum, day) => {
