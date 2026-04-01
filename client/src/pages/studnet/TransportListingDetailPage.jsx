@@ -23,6 +23,7 @@ import dashboardBanner from "../../assets/illustrations/dashboard-banner.png";
 import { getTransportListingPublicApi, bookTransportTripApi } from "../../api/client";
 import { fetchRoute } from "../../utils/routingService";
 
+
 const FACILITY_META = {
     AC: { icon: Snowflake, label: "Air Conditioning" },
     WIFI: { icon: Wifi, label: "WiFi" },

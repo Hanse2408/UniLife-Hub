@@ -32,6 +32,7 @@ function formatCurrency(amount) {
   return `LKR ${(amount || 0).toLocaleString()}`;
 }
 
+
 function formatDate(value) {
   if (!value) return "N/A";
   return new Date(value).toLocaleDateString("en-GB", {
@@ -40,6 +41,7 @@ function formatDate(value) {
     year: "numeric",
   });
 }
+
 
 /* ── Facility icon helper ── */
 const facilityIcons = {

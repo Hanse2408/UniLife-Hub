@@ -25,6 +25,7 @@ const ALLERGEN_OPTIONS = [
     "Soy", "Fish", "Shellfish", "Sesame", "Sulfites",
 ];
 
+
 function formatDate(value) {
     if (!value) return "Not available";
     return new Date(value).toLocaleDateString("en-LK", {
