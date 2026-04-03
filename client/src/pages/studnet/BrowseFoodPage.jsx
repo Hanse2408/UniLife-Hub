@@ -31,6 +31,20 @@ function formatCurrency(amount) {
 	})}`;
 }
 
+// Student-side search and category filtering for the Uni Life Hub Food System
+const SearchFilters = () => {
+  return (
+    <div className="flex gap-4 p-4 bg-slate-50 rounded-xl">
+      <input type="text" placeholder="Search for food items..." className="w-full p-2 rounded border" />
+      <select className="p-2 border rounded text-navy-900">
+        <option>All Categories</option>
+        <option>Breakfast</option>
+        <option>Lunch</option>
+      </select>
+    </div>
+  );
+};
+
 function formatTimeRange(start, end) {
 	if (start && end) {
 		return `${start} - ${end}`;
