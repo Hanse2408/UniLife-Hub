@@ -60,7 +60,16 @@ export default function VendorDashboardPage() {
   const [stats, setStats] = useState(initialStats);
   const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(true);
-
+// Admin/Vendor interface for managing the food catalog.
+// Allows for adding new dishes and monitoring active menu status.
+const VendorDashboard = () => {
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-navy-900">Vendor Management Workspace</h1>
+      <button className="bg-orange-500 text-white px-4 py-2 rounded-lg mt-4">Add New Item</button>
+    </div>
+  );
+};
   useEffect(() => {
     const load = async () => {
       try {
