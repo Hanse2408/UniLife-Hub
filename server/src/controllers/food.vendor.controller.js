@@ -24,6 +24,22 @@ exports.getCrowdSummary = async (req, res) => {
     });
 };
 
+// Validating mandatory fields and ensuring data integrity for new menu items
+if (!name || price == null || !category) {
+    return res.status(400).json({
+        success: false,
+        message: "Mandatory fields missing: Name, price, and category must be provided.",
+    });
+}
+
+// Sanitizing name input to prevent numerical characters in food titles
+if (hasNumberInName(name)) {
+    return res.status(400).json({
+        success: false,
+        message: "Validation Error: Food item names should not contain numeric digits.",
+    });
+}
+
         return res.status(200).json({
             success: true,
             summary: { weeklyBudget, spent, percent, status },
