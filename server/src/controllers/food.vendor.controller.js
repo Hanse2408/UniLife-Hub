@@ -45,6 +45,17 @@ if (hasNumberInName(name)) {
             summary: { weeklyBudget, spent, percent, status },
             suggestions: percent >= 70 ? await FoodItem.listCheapestSafe({ limit: 3 }) : []
         });
+
+		// Informing student about preparation status and triggering admin delivery workflow
+const label = status === "food_processing" ? "under preparation" : status;
+createNotification({
+    userId: updated.student_id,
+    type: "ORDER_STATUS_UPDATE",
+    title: "Vendor is preparing your meal",
+    message: `Good news! Your order is now ${label}. We will notify you once it's dispatched.`,
+    entityType: "ORDER",
+    entityId: updated._id,
+}).catch(() => { });
     } catch (error) {
         return res.status(500).json({ success: false, message: "Budget sync failed" });
     }
