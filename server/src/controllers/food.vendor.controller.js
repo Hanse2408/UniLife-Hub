@@ -23,7 +23,18 @@ exports.getCrowdSummary = async (req, res) => {
         message: "Real-time crowd data integrated from Vendor module"
     });
 };
+// Aggregating real-time vendor performance metrics for dashboard display
+const stats = orders.reduce((acc, order) => {
+    acc.totalSales += Number(order.total_amount || 0);
+    if (["pending", "food_processing"].includes(order.order_status)) acc.pendingOrders++;
+    if (order.order_status === "delivered") acc.deliveredOrders++;
+    return acc;
+}, { totalSales: 0, pendingOrders: 0, deliveredOrders: 0 });
 
+return res.status(200).json({
+    success: true,
+    stats: { totalFoodItems: items.length, totalOrders: orders.length, ...stats },
+});
 // Validating mandatory fields and ensuring data integrity for new menu items
 if (!name || price == null || !category) {
     return res.status(400).json({
