@@ -15,3 +15,19 @@ exports.verifyVendor = async (req, res) => {
         return res.status(500).json({ success: false, message: "Verification process failed." });
     }
 };
+
+// Dispatching order: Transitioning from vendor preparation to campus delivery dispatch
+exports.dispatchOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const updated = await Order.findByIdAndUpdate(orderId, { order_status: "dispatched" }, { new: true });
+
+        return res.status(200).json({
+            success: true,
+            message: "Order has been dispatched and assigned to a delivery partner.",
+            order: updated
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Dispatch operation failed." });
+    }
+};
