@@ -31,3 +31,12 @@ exports.dispatchOrder = async (req, res) => {
         return res.status(500).json({ success: false, message: "Dispatch operation failed." });
     }
 };
+
+router.get("/health", (req, res) => {
+    return res.status(200).json({
+        success: true,
+        module: "food-admin-v1.0",
+        timestamp: new Date().toISOString(),
+        message: "Administrative food services are active and integrated.",
+    });
+});
