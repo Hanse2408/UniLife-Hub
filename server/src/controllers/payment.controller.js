@@ -150,28 +150,17 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
-    const isKeyMoney = booking.keyMoneyAmount > 0;
-    const paymentType = isKeyMoney ? "KEY_MONEY" : "RENT";
-    const paymentAmount = booking.totalBookingAmount;
-    const moveInDate = new Date(booking.moveInDate);
-    const nextBillingDate = new Date(moveInDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-
-    const monthKey = isKeyMoney ? null : moveInDate.toISOString().split("T")[0];
-
-    const payment = await Payment.create({
-      studentId: booking.studentId._id,
-      landlordId: booking.landlordId._id,
-      bookingId: booking._id,
-      type: paymentType,
-      amount: paymentAmount,
-      currency: "LKR",
-      monthKey,
-      dueDate: booking.paymentDueAt || null,
-      status: "PAID",
-      paymentMethod: "SIMULATION",
-      referenceId: generateReferenceId(isKeyMoney ? "KMY" : "FRM"),
-      paidAt: new Date(),
-    });
+  exports.getVendorEarnings = async (req, res) => {
+  try {
+    const earnings = await Payment.aggregate([
+      { $match: { landlordId: req.user.id, type: "FOOD_PURCHASE" } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    return res.status(200).json({ success: true, total: earnings[0]?.total || 0 });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Earnings fetch failed" });
+  }
+};
 
     booking.status = "CONFIRMED";
     booking.confirmedAt = new Date();
