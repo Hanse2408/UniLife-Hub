@@ -1,4 +1,13 @@
 const Payment = require("../models/Payment.model");
+const Order = require("../models/Order.model");
+const { createNotification } = require("../services/notification.service");
+
+// Helper for generating unique food order payment references
+const generateFoodRefId = (prefix = "FOOD") => {
+  const random = Math.floor(10000 + Math.random() * 90000);
+  return `${prefix}-${Date.now()}-${random}`;
+};
+const Payment = require("../models/Payment.model");
 const Booking = require("../models/Booking.model");
 const Listing = require("../models/Listing.model");
 const HousingGroup = require("../models/HousingGroup.model");
