@@ -165,7 +165,7 @@ export default function LandlordListingsPage() {
 
     const activeLabel = statusFilter === "ALL"
         ? "All listings"
-        : STATUS_CONFIG[statusFilter]?.label ?? "Listings";
+        : listingStatusConfig[statusFilter]?.label ?? "Listings";
 
     return (
         <div className="space-y-5">
