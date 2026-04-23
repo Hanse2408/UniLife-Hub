@@ -46,6 +46,31 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
+    exports.payFoodOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await Order.findById(orderId).populate("student_id", "fullName");
+    
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    const payment = await Payment.create({
+      studentId: order.student_id,
+      amount: order.total_amount,
+      type: "FOOD_PURCHASE",
+      status: "PAID",
+      referenceId: generateFoodRefId("PAY"),
+      paidAt: new Date()
+    });
+
+    order.payment_status = "paid";
+    await order.save();
+
+    return res.status(201).json({ success: true, payment });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Payment failed" });
+  }
+};
+
     if (String(booking.studentId._id) !== String(req.user._id)) {
       return res.status(403).json({
         success: false,
