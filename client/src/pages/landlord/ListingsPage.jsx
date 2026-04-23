@@ -1,7 +1,7 @@
 ﻿import {
+    ArrowRight,
     ArrowUpDown,
     Building2,
-    CalendarDays,
     CheckCircle2,
     CircleX,
     Clock3,
@@ -9,7 +9,6 @@
     Pencil,
     Plus,
     Power,
-    ReceiptText,
     Search,
     Trash2,
     Users,
@@ -35,135 +34,19 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString("en-GB");
 }
 
-function getListingMeta(listing) {
-    const occupancy = listing.currentOccupancy || 0;
-    const capacity = listing.maxOccupants || 0;
-
-    if (listing.status === "PENDING_APPROVAL") {
-        return {
-            title: "Awaiting admin review",
-            description: "This listing is submitted and waiting for approval before students can see it.",
-        };
-    }
-
-    if (listing.status === "ACTIVE") {
-        if (capacity > 0 && occupancy >= capacity) {
-            return {
-                title: "Currently full",
-                description: "The listing is active, but all available spaces are occupied right now.",
-            };
-        }
-        return {
-            title: "Live for student bookings",
-            description: "Students can browse this property and send booking requests through the accommodation flow.",
-        };
-    }
-
-    if (listing.status === "UNAVAILABLE") {
-        return {
-            title: "Temporarily unavailable",
-            description: "The listing is not accepting new bookings until occupancy frees up again.",
-        };
-    }
-
-    if (listing.status === "REJECTED") {
-        return {
-            title: "Needs revision",
-            description: listing.rejectionReason || "This listing was rejected during review and needs changes before resubmission.",
-        };
-    }
-
-    if (listing.status === "SUSPENDED") {
-        return {
-            title: "Suspended from discovery",
-            description: "This listing is currently hidden from students and needs follow-up before it can go live again.",
-        };
-    }
-
-    return {
-        title: "Listing update",
-        description: "Review this property for the latest availability and moderation state.",
-    };
-}
-
-/* ── Status badge ─────────────────────────────────────────── */
-
-const STATUS_CONFIG = {
-    ACTIVE: {
-        label: "Active",
-        classes: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80",
-        dot: "bg-emerald-500",
-    },
-    PENDING_APPROVAL: {
-        label: "Pending approval",
-        classes: "bg-amber-50 text-amber-700 ring-1 ring-amber-200/80",
-        dot: "bg-amber-500",
-    },
-    UNAVAILABLE: {
-        label: "Unavailable",
-        classes: "bg-slate-100 text-slate-600 ring-1 ring-slate-200/80",
-        dot: "bg-slate-400",
-    },
-    REJECTED: {
-        label: "Rejected",
-        classes: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/80",
-        dot: "bg-rose-500",
-    },
-    SUSPENDED: {
-        label: "Suspended",
-        classes: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/80",
-        dot: "bg-rose-500",
-    },
+const listingStatusConfig = {
+    ACTIVE: { dot: "bg-emerald-500", label: "Active", bg: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60" },
+    UNAVAILABLE: { dot: "bg-slate-400", label: "Unavailable", bg: "bg-slate-100 text-slate-600 ring-1 ring-slate-200/60" },
+    PENDING_APPROVAL: { dot: "bg-amber-500", label: "Pending", bg: "bg-amber-50 text-amber-700 ring-1 ring-amber-200/60" },
+    REJECTED: { dot: "bg-rose-500", label: "Rejected", bg: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/60" },
+    SUSPENDED: { dot: "bg-rose-500", label: "Suspended", bg: "bg-rose-50 text-rose-700 ring-1 ring-rose-200/60" },
 };
 
-function ListingStatusBadge({ status }) {
-    const config = STATUS_CONFIG[status] || {
-        label: String(status).replaceAll("_", " "),
-        classes: "bg-slate-100 text-slate-600 ring-1 ring-slate-200/80",
-        dot: "bg-slate-400",
-    };
-    return (
-        <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap ${config.classes}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
-            {config.label}
-        </span>
-    );
-}
-
-/* ── Occupancy bar ────────────────────────────────────────── */
-
-function OccupancyBar({ current, max }) {
-    const pct = max > 0 ? Math.min(100, Math.round((current / max) * 100)) : 0;
-    const barColor =
-        pct >= 90 ? "from-rose-400 to-rose-500" :
-            pct >= 60 ? "from-sky-400 to-blue-500" :
-                "from-emerald-400 to-teal-500";
-    return (
-        <div>
-            <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-slate-400">Occupancy</span>
-                <span className="text-[11px] font-bold text-slate-700">{current}/{max} · {pct}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                <div
-                    className={`h-full rounded-full bg-gradient-to-r ${barColor} transition-all duration-300`}
-                    style={{ width: `${pct}%` }}
-                />
-            </div>
-        </div>
-    );
-}
-
-/* ── Accent stripe helper ─────────────────────────────────── */
-
-function getAccentStripe(status) {
-    switch (status) {
-        case "ACTIVE": return "from-emerald-400 to-teal-400";
-        case "PENDING_APPROVAL": return "from-amber-400 to-orange-400";
-        case "REJECTED": return "from-rose-500 to-pink-400";
-        case "SUSPENDED": return "from-rose-400 to-rose-500";
-        default: return "from-slate-300 to-slate-400";
-    }
+function getStatusLabel(listing) {
+    const occupancy = listing.currentOccupancy || 0;
+    const maxOcc = listing.maxOccupants || 0;
+    if (listing.status === "UNAVAILABLE" && maxOcc > 0 && occupancy >= maxOcc) return "Full · Unavailable";
+    return listingStatusConfig[listing.status]?.label || "Unknown";
 }
 
 /* ── Page ───────────────────────────────────────────────────── */
@@ -368,7 +251,7 @@ export default function LandlordListingsPage() {
                     </div>
                     <Link
                         to="/landlord/listings/create"
-                        className="btn-primary h-11 shrink-0"
+                        className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-slate-900 to-slate-800 px-5 text-[13px] font-bold text-white shadow-md shadow-slate-900/15 transition-all hover:from-slate-800 hover:to-slate-700 hover:shadow-lg active:scale-[0.97]"
                     >
                         <Plus size={15} strokeWidth={2.5} />
                         New Listing
@@ -395,8 +278,8 @@ export default function LandlordListingsPage() {
                                     type="button"
                                     onClick={() => setStatusFilter(tab.value)}
                                     className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all ${active
-                                            ? "bg-indigo-600 text-white shadow-sm"
-                                            : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300"
+                                        ? "bg-indigo-600 text-white shadow-sm"
+                                        : "bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300"
                                         }`}
                                 >
                                     {tab.label}
@@ -495,154 +378,129 @@ export default function LandlordListingsPage() {
 
                     {/* Listing cards */}
                     {filteredListings.map((listing) => {
-                        const meta = getListingMeta(listing);
-                        const isBusy = actionLoading === listing._id;
-                        const isActive = listing.status === "ACTIVE";
+                        const occupancy = listing.currentOccupancy || 0;
+                        const maxOcc = listing.maxOccupants || 0;
+                        const occPercent = maxOcc > 0 ? Math.round((occupancy / maxOcc) * 100) : 0;
+                        const statusCfg = listingStatusConfig[listing.status] || listingStatusConfig.UNAVAILABLE;
+                        const isLoading = actionLoading === listing._id;
 
                         return (
-                            <article
-                                key={listing._id}
-                                className="card overflow-hidden transition-shadow hover:shadow-md"
-                            >
-                                {/* Status accent stripe */}
-                                <div className={`h-1 w-full bg-gradient-to-r ${getAccentStripe(listing.status)}`} />
-
-                                <div className="flex flex-col sm:flex-row">
+                            <div key={listing._id} className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+                                <div className="flex flex-col lg:flex-row">
                                     {/* Thumbnail */}
-                                    <div className="relative w-full shrink-0 overflow-hidden bg-slate-100 sm:w-44 xl:w-52">
+                                    <div className="relative h-48 shrink-0 overflow-hidden bg-slate-100 lg:h-auto lg:w-56">
                                         <img
                                             src={listing.photos?.[0] || listingPlaceholder}
                                             alt={listing.title}
-                                            className="h-52 w-full object-cover sm:h-full"
-                                            onError={(e) => { e.currentTarget.src = listingPlaceholder; }}
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            onError={(event) => { event.currentTarget.src = listingPlaceholder; }}
                                         />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
+                                        {/* Floating status badge */}
+                                        <div className={`absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold shadow-sm ${statusCfg.bg} backdrop-blur-sm`}>
+                                            <span className={`h-2 w-2 rounded-full ${statusCfg.dot} ring-2 ring-white/30`} />
+                                            {getStatusLabel(listing)}
+                                        </div>
                                     </div>
 
-                                    {/* Card body */}
-                                    <div className="flex min-h-[220px] flex-1 flex-col gap-3 p-4 sm:p-5">
-
-                                        {/* Row 1: Identity + status badge */}
-                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                    {/* Content area */}
+                                    <div className="flex flex-1 flex-col p-5 sm:p-6 lg:border-l lg:border-slate-100">
+                                        {/* Header row */}
+                                        <div className="flex flex-wrap items-start justify-between gap-3">
                                             <div className="min-w-0 flex-1">
-                                                <h4 className="text-[1.05rem] font-extrabold leading-snug text-slate-900 line-clamp-1">
-                                                    {listing.title}
-                                                </h4>
-                                                <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-slate-500">
-                                                    <MapPin size={12} strokeWidth={2.2} className="shrink-0 text-slate-400" />
-                                                    <span className="line-clamp-1">
-                                                        {listing.location?.city || "Unknown city"} / {listing.location?.area || "Unknown area"}
-                                                    </span>
-                                                </p>
-                                                <p className="mt-0.5 text-xs text-slate-400 line-clamp-1">
-                                                    {listing.location?.addressLine || "Address not provided"}
+                                                <h4 className="text-[15px] font-bold text-slate-900 transition-colors group-hover:text-indigo-600">{listing.title}</h4>
+                                                <p className="mt-1.5 flex items-center gap-1.5 text-[13px] text-slate-500">
+                                                    <MapPin size={13} strokeWidth={2.2} className="shrink-0 text-slate-400" />
+                                                    {listing.location?.city || "Unknown"}, {listing.location?.area || "Unknown"}
                                                 </p>
                                             </div>
-                                            <ListingStatusBadge status={listing.status} />
+                                            <Link
+                                                to={`/landlord/listings/${listing._id}/edit`}
+                                                className="hidden shrink-0 items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3.5 py-1.5 text-[11.5px] font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-100 hover:shadow-md sm:inline-flex"
+                                            >
+                                                <Pencil size={12} strokeWidth={2.2} />
+                                                Edit Details
+                                            </Link>
                                         </div>
 
-                                        {/* Row 2: Key metrics grid */}
-                                        <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
-                                            {[
-                                                { label: "Rent / mo", value: formatCurrency(listing.rent) },
-                                                { label: "Key money", value: listing.keyMoney > 0 ? formatCurrency(listing.keyMoney) : "—" },
-                                                { label: "Type", value: listing.roomType || "N/A" },
-                                                { label: "Capacity", value: `${listing.currentOccupancy || 0}/${listing.maxOccupants || 0}` },
-                                            ].map((item) => (
-                                                <div key={item.label}>
-                                                    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                                                        {item.label}
-                                                    </div>
-                                                    <div className="mt-1 text-sm font-bold text-slate-800">
-                                                        {item.value}
+                                        {/* Metrics row */}
+                                        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
+                                            <div className="rounded-xl bg-slate-50 px-3.5 py-2.5 ring-1 ring-slate-100">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Monthly Rent</p>
+                                                <p className="mt-1 text-sm font-bold text-slate-800">{formatCurrency(listing.rent)}</p>
+                                            </div>
+                                            <div className="rounded-xl bg-slate-50 px-3.5 py-2.5 ring-1 ring-slate-100">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Occupancy</p>
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    <span className="text-sm font-bold text-slate-800">{occupancy}/{maxOcc}</span>
+                                                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                                        <div
+                                                            className={`h-full rounded-full transition-all ${occPercent >= 100 ? "bg-emerald-500" : occPercent >= 50 ? "bg-sky-500" : "bg-amber-500"}`}
+                                                            style={{ width: `${Math.min(occPercent, 100)}%` }}
+                                                        />
                                                     </div>
                                                 </div>
-                                            ))}
+                                            </div>
+                                            {listing.roomType && (
+                                                <div className="rounded-xl bg-slate-50 px-3.5 py-2.5 ring-1 ring-slate-100">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Room Type</p>
+                                                    <p className="mt-1 text-sm font-bold text-slate-800">{listing.roomType}</p>
+                                                </div>
+                                            )}
+                                            <div className="rounded-xl bg-slate-50 px-3.5 py-2.5 ring-1 ring-slate-100">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Status</p>
+                                                <div className="mt-1 flex items-center gap-1.5">
+                                                    <span className={`h-2 w-2 rounded-full ${statusCfg.dot}`} />
+                                                    <span className="text-sm font-bold text-slate-800">{getStatusLabel(listing)}</span>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        {/* Row 3: Occupancy bar */}
-                                        <OccupancyBar
-                                            current={listing.currentOccupancy || 0}
-                                            max={listing.maxOccupants || 0}
-                                        />
+                                        {/* Actions footer */}
+                                        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+                                            <Link
+                                                to={`/landlord/listings/${listing._id}/edit`}
+                                                className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3.5 py-2 text-[11.5px] font-bold text-indigo-700 transition-all duration-200 hover:bg-indigo-100 hover:shadow-sm sm:hidden"
+                                            >
+                                                <Pencil size={12} strokeWidth={2.2} />
+                                                Edit
+                                            </Link>
+                                            <button
+                                                onClick={() => handleToggleStatus(listing._id)}
+                                                disabled={isLoading}
+                                                className={`inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-[11.5px] font-bold transition-all duration-200 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${listing.status === "ACTIVE"
+                                                    ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                                                    : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                                                    }`}
+                                            >
+                                                <Power size={12} strokeWidth={2.5} />
+                                                {listing.status === "ACTIVE" ? "Set Inactive" : "Set Active"}
+                                            </button>
 
-                                        {/* Row 4: Status context note */}
-                                        <div className={`rounded-xl px-3.5 py-2.5 text-xs leading-5 ${listing.status === "REJECTED" || listing.status === "SUSPENDED"
-                                            ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
-                                            : listing.status === "PENDING_APPROVAL"
-                                                ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
-                                                : "bg-slate-50 text-slate-600 ring-1 ring-slate-100"
-                                            }`}>
-                                            <span className="font-semibold">{meta.title}.</span>{" "}
-                                            <span>{meta.description}</span>
-                                        </div>
+                                            <span className="mx-0.5 hidden h-5 w-px bg-slate-200 sm:block" />
 
-                                        {/* Row 5: Amenity chips */}
-                                        {(listing.facilities?.length || 0) > 0 && (
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {listing.facilities.slice(0, 5).map((facility) => (
-                                                    <span
-                                                        key={facility}
-                                                        className="rounded-lg bg-slate-50 px-2.5 py-0.5 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200/70"
-                                                    >
-                                                        {facility}
-                                                    </span>
-                                                ))}
-                                                {listing.facilities.length > 5 && (
-                                                    <span className="rounded-lg bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200/70">
-                                                        +{listing.facilities.length - 5} more
-                                                    </span>
-                                                )}
-                                            </div>
-                                        )}
+                                            <button
+                                                onClick={() => handleDelete(listing._id)}
+                                                disabled={isLoading}
+                                                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-[11.5px] font-semibold text-slate-500 transition-all duration-200 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                <Trash2 size={11} strokeWidth={2.2} />
+                                                Delete
+                                            </button>
 
-                                        {/* Row 6: Footer — metadata + actions */}
-                                        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3.5">
-                                            <div className="flex items-center gap-3 text-[10.5px] font-medium uppercase tracking-[0.2em] text-slate-400">
-                                                <span className="inline-flex items-center gap-1.5">
-                                                    <ReceiptText size={11} strokeWidth={2.2} />
-                                                    {String(listing._id).slice(-6).toUpperCase()}
-                                                </span>
-                                                <span className="text-slate-200">·</span>
-                                                <span className="inline-flex items-center gap-1.5">
-                                                    <CalendarDays size={11} strokeWidth={2.2} />
-                                                    {formatDate(listing.createdAt)}
-                                                </span>
-                                            </div>
+                                            <span className="hidden flex-1 sm:block" />
 
-                                            <div className="flex items-center gap-1.5">
-                                                <Link
-                                                    to={`/landlord/listings/${listing._id}/edit`}
-                                                    className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-[0.97]"
-                                                >
-                                                    <Pencil size={12} strokeWidth={2.3} />
-                                                    Edit
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleToggleStatus(listing._id)}
-                                                    disabled={isBusy}
-                                                    type="button"
-                                                    className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold ring-1 transition-all active:scale-[0.97] disabled:opacity-60 ${isActive
-                                                        ? "bg-amber-50 text-amber-700 ring-amber-200/80 hover:bg-amber-100"
-                                                        : "bg-emerald-50 text-emerald-700 ring-emerald-200/80 hover:bg-emerald-100"
-                                                        }`}
-                                                >
-                                                    <Power size={12} strokeWidth={2.3} />
-                                                    {isBusy ? "Updating…" : isActive ? "Deactivate" : "Activate"}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(listing._id)}
-                                                    disabled={isBusy}
-                                                    type="button"
-                                                    className="inline-flex items-center gap-1.5 rounded-xl bg-rose-50 px-3.5 py-1.5 text-xs font-semibold text-rose-700 ring-1 ring-rose-200/80 transition-all hover:bg-rose-100 active:scale-[0.97] disabled:opacity-60"
-                                                >
-                                                    <Trash2 size={12} strokeWidth={2.3} />
-                                                    Delete
-                                                </button>
-                                            </div>
+                                            <Link
+                                                to={`/landlord/listings/${listing._id}/edit`}
+                                                className="ml-auto hidden items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-[11.5px] font-bold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md active:scale-[0.97] lg:inline-flex"
+                                            >
+                                                View full details
+                                                <ArrowRight size={13} strokeWidth={2.2} />
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
-                            </article>
+                            </div>
                         );
                     })}
                 </div>
