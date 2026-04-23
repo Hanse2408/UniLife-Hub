@@ -117,6 +117,16 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
+    exports.getStudentPaymentHistory = async (req, res) => {
+  try {
+    const history = await Payment.find({ studentId: req.user.id, type: "FOOD_PURCHASE" })
+      .sort({ paidAt: -1 });
+    return res.status(200).json({ success: true, history });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "History fetch failed" });
+  }
+};
+
     const listing = await Listing.findById(booking.listingId._id);
 
     if (!listing) {
