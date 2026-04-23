@@ -162,6 +162,8 @@ const payBookingAmount = async (req, res) => {
   }
 };
 
+
+
     booking.status = "CONFIRMED";
     booking.confirmedAt = new Date();
     await booking.save();
@@ -534,4 +536,14 @@ module.exports = {
   getMyPaymentHistory,
   confirmPayment,
   getLandlordPaymentHistory,
+};
+
+/**
+ * @module FoodPaymentController
+ * @description Manages financial transactions between Students and Vendors.
+ */
+module.exports = {
+  payFoodOrder,
+  getStudentPaymentHistory,
+  getVendorEarnings
 };
