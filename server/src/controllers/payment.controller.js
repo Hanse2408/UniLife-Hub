@@ -85,6 +85,14 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
+    // Notification for real-time payment confirmation
+    await createNotification({
+      userId: order.student_id,
+      type: "PAYMENT_SUCCESS",
+      title: "Payment Successful",
+      message: `LKR ${order.total_amount} paid for Order #${orderId.slice(-6)}.`,
+    });
+
     const existingPaidBookingPayment = await Payment.findOne({
       bookingId: booking._id,
       studentId: req.user._id,
