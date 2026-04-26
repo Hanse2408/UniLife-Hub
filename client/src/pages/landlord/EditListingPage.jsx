@@ -64,7 +64,7 @@ export default function EditListingPage() {
             />
         );
     }
-
+// Show error if listing failed to load
     if (loadError) {
         return (
             <div className="card flex flex-col items-center gap-4 px-6 py-14 text-center">
