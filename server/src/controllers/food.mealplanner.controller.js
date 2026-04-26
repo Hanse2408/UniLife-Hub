@@ -130,21 +130,6 @@ exports.generatePlan = async (req, res) => {
 		});
 	}
 };
-// Validating mandatory fields and ensuring data integrity for new menu items
-if (!name || price == null || !category) {
-    return res.status(400).json({
-        success: false,
-        message: "Mandatory fields missing: Name, price, and category must be provided.",
-    });
-}
-
-// Sanitizing name input to prevent numerical characters in food titles
-if (hasNumberInName(name)) {
-    return res.status(400).json({
-        success: false,
-        message: "Validation Error: Food item names should not contain numeric digits.",
-    });
-}
 
 exports.getCurrentPlan = async (req, res) => {
 	try {
@@ -162,17 +147,6 @@ exports.getCurrentPlan = async (req, res) => {
 		});
 	}
 };
-
-// Informing student about preparation status and triggering admin delivery workflow
-const label = status === "food_processing" ? "under preparation" : status;
-createNotification({
-    userId: updated.student_id,
-    type: "ORDER_STATUS_UPDATE",
-    title: "Vendor is preparing your meal",
-    message: `Good news! Your order is now ${label}. We will notify you once it's dispatched.`,
-    entityType: "ORDER",
-    entityId: updated._id,
-}).catch(() => { });
 
 // ---- Manual meal planner ----
 

@@ -1,18 +1,18 @@
 const express = require("express");
 const router = express.Router();
 
-// Aggregating real-time vendor performance metrics for dashboard display
-const stats = orders.reduce((acc, order) => {
-    acc.totalSales += Number(order.total_amount || 0);
-    if (["pending", "food_processing"].includes(order.order_status)) acc.pendingOrders++;
-    if (order.order_status === "delivered") acc.deliveredOrders++;
-    return acc;
-}, { totalSales: 0, pendingOrders: 0, deliveredOrders: 0 });
+const { authRequired } = require("../middleware/auth.middleware");
+const authorizeRoles = require("../middleware/role.middleware");
 
-return res.status(200).json({
-    success: true,
-    stats: { totalFoodItems: items.length, totalOrders: orders.length, ...stats },
-});
+const {
+  createFoodItem,
+  listMyFoodItems,
+  updateFoodItem,
+  deleteFoodItem,
+  listVendorOrders,
+  updateOrderStatus,
+  getVendorStats,
+} = require("../controllers/food.vendor.controller");
 
 // VENDOR ONLY
 router.use(authRequired, authorizeRoles("VENDOR"));

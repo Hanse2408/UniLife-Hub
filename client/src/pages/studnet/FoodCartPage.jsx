@@ -27,17 +27,7 @@ function formatCurrency(amount) {
 		maximumFractionDigits: 2,
 	})}`;
 }
-// Reusable component for displaying food items with consistent 
-// interface quality and capitalization of labels.
-const FoodCard = ({ item }) => {
-  return (
-    <div className="border rounded-lg p-4 shadow-sm hover:border-orange-400">
-      <h3 className="font-bold text-navy-800 uppercase">{item.name}</h3>
-      <p className="text-sm text-gray-600 capitalize">{item.category}</p>
-      <span className="text-orange-600 font-semibold">LKR {item.price}</span>
-    </div>
-  );
-};
+
 export default function FoodCartPage() {
 	const navigate = useNavigate();
 	const [cart, setCart] = useState({ items: [], totals: { subtotal: 0, deliveryFee: 0, total: 0 } });

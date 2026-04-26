@@ -1,13 +1,4 @@
 const Payment = require("../models/Payment.model");
-const Order = require("../models/Order.model");
-const { createNotification } = require("../services/notification.service");
-
-// Helper for generating unique food order payment references
-const generateFoodRefId = (prefix = "FOOD") => {
-  const random = Math.floor(10000 + Math.random() * 90000);
-  return `${prefix}-${Date.now()}-${random}`;
-};
-const Payment = require("../models/Payment.model");
 const Booking = require("../models/Booking.model");
 const Listing = require("../models/Listing.model");
 const HousingGroup = require("../models/HousingGroup.model");
@@ -46,31 +37,6 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
-    exports.payFoodOrder = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const order = await Order.findById(orderId).populate("student_id", "fullName");
-    
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
-
-    const payment = await Payment.create({
-      studentId: order.student_id,
-      amount: order.total_amount,
-      type: "FOOD_PURCHASE",
-      status: "PAID",
-      referenceId: generateFoodRefId("PAY"),
-      paidAt: new Date()
-    });
-
-    order.payment_status = "paid";
-    await order.save();
-
-    return res.status(201).json({ success: true, payment });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Payment failed" });
-  }
-};
-
     if (String(booking.studentId._id) !== String(req.user._id)) {
       return res.status(403).json({
         success: false,
@@ -84,14 +50,6 @@ const payBookingAmount = async (req, res) => {
         message: "Only approved or payment pending bookings can be paid",
       });
     }
-
-    // Notification for real-time payment confirmation
-    await createNotification({
-      userId: order.student_id,
-      type: "PAYMENT_SUCCESS",
-      title: "Payment Successful",
-      message: `LKR ${order.total_amount} paid for Order #${orderId.slice(-6)}.`,
-    });
 
     const existingPaidBookingPayment = await Payment.findOne({
       bookingId: booking._id,
@@ -117,16 +75,6 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
-    exports.getStudentPaymentHistory = async (req, res) => {
-  try {
-    const history = await Payment.find({ studentId: req.user.id, type: "FOOD_PURCHASE" })
-      .sort({ paidAt: -1 });
-    return res.status(200).json({ success: true, history });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "History fetch failed" });
-  }
-};
-
     const listing = await Listing.findById(booking.listingId._id);
 
     if (!listing) {
@@ -150,19 +98,28 @@ const payBookingAmount = async (req, res) => {
       });
     }
 
-  exports.getVendorEarnings = async (req, res) => {
-  try {
-    const earnings = await Payment.aggregate([
-      { $match: { landlordId: req.user.id, type: "FOOD_PURCHASE" } },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
-    ]);
-    return res.status(200).json({ success: true, total: earnings[0]?.total || 0 });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Earnings fetch failed" });
-  }
-};
+    const isKeyMoney = booking.keyMoneyAmount > 0;
+    const paymentType = isKeyMoney ? "KEY_MONEY" : "RENT";
+    const paymentAmount = booking.totalBookingAmount;
+    const moveInDate = new Date(booking.moveInDate);
+    const nextBillingDate = new Date(moveInDate.getTime() + 30 * 24 * 60 * 60 * 1000);
 
+    const monthKey = isKeyMoney ? null : moveInDate.toISOString().split("T")[0];
 
+    const payment = await Payment.create({
+      studentId: booking.studentId._id,
+      landlordId: booking.landlordId._id,
+      bookingId: booking._id,
+      type: paymentType,
+      amount: paymentAmount,
+      currency: "LKR",
+      monthKey,
+      dueDate: booking.paymentDueAt || null,
+      status: "PAID",
+      paymentMethod: "SIMULATION",
+      referenceId: generateReferenceId(isKeyMoney ? "KMY" : "FRM"),
+      paidAt: new Date(),
+    });
 
     booking.status = "CONFIRMED";
     booking.confirmedAt = new Date();
@@ -536,14 +493,4 @@ module.exports = {
   getMyPaymentHistory,
   confirmPayment,
   getLandlordPaymentHistory,
-};
-
-/**
- * @module FoodPaymentController
- * @description Manages financial transactions between Students and Vendors.
- */
-module.exports = {
-  payFoodOrder,
-  getStudentPaymentHistory,
-  getVendorEarnings
 };
